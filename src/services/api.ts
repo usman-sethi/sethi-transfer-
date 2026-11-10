@@ -19,14 +19,28 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set('Content-Type', 'application/json');
   }
 
-  const res = await fetch(`/api/v1${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  let res: Response;
+  try {
+    res = await fetch(`/api/v1${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    });
+
+    // If 404, retry via /api alias
+    if (res.status === 404) {
+      res = await fetch(`/api${endpoint}`, {
+        ...options,
+        headers,
+        credentials: 'include',
+      });
+    }
+  } catch (netErr: any) {
+    throw new Error('Network error: Unable to reach the server. Please check your connection.');
+  }
 
   // Handle 401 refresh attempt once
-  if (res.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh')) {
+  if (res.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/register')) {
     const refreshRes = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
       credentials: 'include',
@@ -52,7 +66,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(data.error || `HTTP ${res.status}: Request failed`);
+    throw new Error(data.error || (res.status === 404 ? 'Server is still warming up. Please try again in a moment.' : `Request failed (HTTP ${res.status})`));
   }
   return data as T;
 }

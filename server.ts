@@ -23,14 +23,30 @@ async function startServer() {
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
+  // Request logger for diagnostic visibility
+  app.use((req, res, next) => {
+    if (!req.url.startsWith('/@') && !req.url.startsWith('/node_modules') && !req.url.startsWith('/src')) {
+      console.log(`[HTTP ${req.method}] ${req.originalUrl}`);
+    }
+    next();
+  });
+
   // Connect to MongoDB Atlas (graceful non-blocking)
   await connectDatabase();
 
-  // Mount API v1 routes
-  app.use('/api/v1/auth', authRoutes);
-  app.use('/api/v1/files', fileRoutes);
-  app.use('/api/v1/storage', storageRoutes);
-  app.use('/api/v1/health', healthRoutes);
+  // Mount API routes with flexible versioned and unversioned paths
+  app.use(['/api/v1/auth', '/api/auth', '/auth'], authRoutes);
+  app.use(['/api/v1/files', '/api/files', '/files'], fileRoutes);
+  app.use(['/api/v1/storage', '/api/storage', '/storage'], storageRoutes);
+  app.use(['/api/v1/health', '/api/health', '/health'], healthRoutes);
+
+  // Dedicated 404 handler for API routes to always return structured JSON
+  app.all(['/api/*', '/api/v1/*'], (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: `API route not found: ${req.method} ${req.originalUrl}`,
+    });
+  });
 
   const isProduction = process.env.NODE_ENV === 'production';
 

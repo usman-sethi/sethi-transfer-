@@ -70,6 +70,7 @@ export default function App() {
   const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
   const [renameTarget, setRenameTarget] = useState<FileItem | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState<'signin' | 'register'>('signin');
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
 

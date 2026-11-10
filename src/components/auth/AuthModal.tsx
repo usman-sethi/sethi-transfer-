@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Lock, Mail, User as UserIcon, Loader2 } from 'lucide-react';
 
 interface AuthModalProps {
@@ -6,15 +6,27 @@ interface AuthModalProps {
   onClose: () => void;
   onLogin: (email: string, password: string) => Promise<any>;
   onRegister: (name: string, email: string, password: string) => Promise<any>;
+  initialMode?: 'signin' | 'register';
 }
 
-export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalProps) {
-  const [isRegister, setIsRegister] = useState(false);
+export function AuthModal({
+  isOpen,
+  onClose,
+  onLogin,
+  onRegister,
+  initialMode = 'signin',
+}: AuthModalProps) {
+  const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsRegister(initialMode === 'register');
+    setError(null);
+  }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
 
@@ -26,9 +38,9 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
     try {
       if (isRegister) {
         if (!name.trim()) throw new Error('Please enter your full name.');
-        await onRegister(name, email, password);
+        await onRegister(name.trim(), email.trim(), password);
       } else {
-        await onLogin(email, password);
+        await onLogin(email.trim(), password);
       }
       onClose();
     } catch (err: any) {
@@ -39,7 +51,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="relative w-full max-w-md bg-[#FFFFFF] dark:bg-[#1E1F20] rounded-3xl shadow-2xl border border-[#DADCE0] dark:border-[#444746] overflow-hidden p-6 md:p-8">
         {/* Close Button */}
         <button
@@ -51,8 +63,8 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
         </button>
 
         {/* Brand Icon & Heading */}
-        <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#1A73E8]/10 dark:bg-[#A8C7FA]/10 text-[#1A73E8] dark:text-[#A8C7FA] flex items-center justify-center mx-auto mb-3">
+        <div className="text-center mb-5">
+          <div className="w-12 h-12 rounded-2xl bg-[#1A73E8]/10 dark:bg-[#A8C7FA]/10 text-[#1A73E8] dark:text-[#A8C7FA] flex items-center justify-center mx-auto mb-3 shadow-xs">
             <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
               <path d="m8 17 4-4 4 4" />
@@ -65,6 +77,38 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
           <p className="text-xs text-[#5F6368] dark:text-[#AEB0B3] mt-1">
             Access your private files across your mobile and desktop devices.
           </p>
+        </div>
+
+        {/* Mode Segmented Tab Switcher */}
+        <div className="flex items-center p-1 bg-[#F1F3F4] dark:bg-[#28292A] rounded-2xl mb-5">
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegister(false);
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-xl transition-all ${
+              !isRegister
+                ? 'bg-white dark:bg-[#1E1F20] text-[#1A73E8] dark:text-[#A8C7FA] shadow-xs'
+                : 'text-[#5F6368] dark:text-[#AEB0B3] hover:text-[#202124] dark:hover:text-[#E3E3E3]'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegister(true);
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-xl transition-all ${
+              isRegister
+                ? 'bg-white dark:bg-[#1E1F20] text-[#1A73E8] dark:text-[#A8C7FA] shadow-xs'
+                : 'text-[#5F6368] dark:text-[#AEB0B3] hover:text-[#202124] dark:hover:text-[#E3E3E3]'
+            }`}
+          >
+            Create Account
+          </button>
         </div>
 
         {/* Error message */}
@@ -89,6 +133,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#DADCE0] dark:border-[#444746] bg-[#FFFFFF] dark:bg-[#28292A] text-sm text-[#202124] dark:text-[#E3E3E3] focus:border-[#1A73E8] focus:ring-2 focus:ring-[#1A73E8]/20 outline-none transition-all"
+                  autoFocus={isRegister}
                 />
               </div>
             </div>
@@ -107,6 +152,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#DADCE0] dark:border-[#444746] bg-[#FFFFFF] dark:bg-[#28292A] text-sm text-[#202124] dark:text-[#E3E3E3] focus:border-[#1A73E8] focus:ring-2 focus:ring-[#1A73E8]/20 outline-none transition-all"
+                autoFocus={!isRegister}
               />
             </div>
           </div>
@@ -139,8 +185,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onRegister }: AuthModalPro
           </button>
         </form>
 
-        {/* Switch mode */}
-        <div className="mt-6 pt-4 border-t border-[#DADCE0] dark:border-[#444746] text-center">
+        <div className="mt-5 pt-4 border-t border-[#DADCE0] dark:border-[#444746] text-center">
           <p className="text-xs text-[#5F6368] dark:text-[#AEB0B3]">
             {isRegister ? 'Already have an account?' : "Don't have an account yet?"}{' '}
             <button

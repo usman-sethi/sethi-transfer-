@@ -34,8 +34,8 @@ function setAuthCookies(res: Response, refreshToken: string, accessToken: string
   });
 }
 
-// POST /api/v1/auth/register
-router.post('/register', async (req: Request, res: Response): Promise<void> => {
+// POST /api/v1/auth/register or /signup
+router.post(['/register', '/signup'], async (req: Request, res: Response): Promise<void> => {
   try {
     const parse = registerSchema.safeParse(req.body);
     if (!parse.success) {
@@ -77,8 +77,8 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// POST /api/v1/auth/login
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
+// POST /api/v1/auth/login or /signin
+router.post(['/login', '/signin'], async (req: Request, res: Response): Promise<void> => {
   try {
     const parse = loginSchema.safeParse(req.body);
     if (!parse.success) {
