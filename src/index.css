@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --bg-canvas: #F8FAFD;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F1F3F4;
+    --bg-subtle: #F8F9FA;
+    --text-primary: #202124;
+    --text-secondary: #5F6368;
+    --border-color: #DADCE0;
+    --border-subtle: #E8EAED;
+    --primary-blue: #1A73E8;
+    --primary-blue-hover: #1558B0;
+    --primary-blue-light: #E8F0FE;
+    --success-green: #1E8E3E;
+    --warning-amber: #F9AB00;
+    --danger-red: #D93025;
+  }
+
+  .dark {
+    --bg-canvas: #131314;
+    --bg-surface: #1E1F20;
+    --bg-elevated: #28292A;
+    --bg-subtle: #1F2022;
+    --text-primary: #E3E3E3;
+    --text-secondary: #AEB0B3;
+    --border-color: #444746;
+    --border-subtle: #333537;
+    --primary-blue: #A8C7FA;
+    --primary-blue-hover: #D3E3FD;
+    --primary-blue-light: #004A77;
+    --success-green: #81C995;
+    --warning-amber: #FDD663;
+    --danger-red: #F28B82;
+  }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom scrollbars inspired by Google Drive */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.4);
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Sethi Transfer",
+  "description": "Secure, cross-device personal file transfer platform with Google Drive and Photos-inspired Material Design 3 experience.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
